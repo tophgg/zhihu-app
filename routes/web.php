@@ -17,6 +17,8 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('/', 'QuestionsController@index');
+
 Route::get('/home', 'HomeController@index');
 
 Route::get('email/verify/{token}',['as' => 'email.verify', 'uses' => 'EmailController@verify']);
@@ -25,3 +27,7 @@ Route::resource('questions','QuestionsController',['names' => [
     'create' => 'question.create',
     'show'   => 'question.show'
 ]]);
+
+Route::post('questions/{question}/answer','AnswersController@store');
+
+Route::get('questions/{question}/follow','QuestionFollowController@follow');

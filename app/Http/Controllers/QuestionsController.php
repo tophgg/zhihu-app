@@ -2,13 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\QuestionRepository;
 use Auth;
-use App\Question;
 use App\Http\Requests\StoreQuestionRequest;
 use Illuminate\Http\Request;
 
 class QuestionsController extends Controller
 {
+    protected $questionRepository;
+
+    public function __construct(QuestionRepository $questionRepository)
+    {
+        $this->middleware('auth')->except(['show','index']);
+        $this->questionRepository = $questionRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,8 +24,8 @@ class QuestionsController extends Controller
      */
     public function index()
     {
-        //
-        return '123';
+        $questions = $this->questionRepository->getQuestionFeed();
+        return view('questions.index',compact('questions'));
     }
 
     /**
@@ -39,13 +47,18 @@ class QuestionsController extends Controller
      */
     public function store(StoreQuestionRequest $request) // 依赖注入
     {
-        //
+        $topics = $this->questionRepository->normalizeTopic($request->get('topics'));
+
         $data = [
             'title' => $request->get('title'),
             'body' => $request->get('body'),
             'user_id' => Auth::id()
         ];
-        $question = Question::create($data);
+        $question = $this->questionRepository->create($data);
+
+        // $topics 的value是topic的id值，这条问题与话题多对多attach后生成n条这个问题对应的话题
+        $question->topics()->attach($topics);
+
         return redirect()->route('question.show',[$question->id]);
     }
 
@@ -57,9 +70,8 @@ class QuestionsController extends Controller
      */
     public function show($id)
     {
-
-        //
-        $question = Question::find($id);
+        // with 关联
+        $question = $this->questionRepository->byIdWithTopicsAndAnswers($id);
         return view('questions.show',compact('question'));
     }
 
@@ -71,7 +83,11 @@ class QuestionsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $question = $this->questionRepository->byId($id);
+        if(Auth::user()->owns($question)){
+            return view('questions.edit',compact('question'));
+        }
+        return back();
     }
 
     /**
@@ -81,9 +97,19 @@ class QuestionsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreQuestionRequest $request, $id)
     {
-        //
+        $topics = $this->questionRepository->normalizeTopic($request->get('topics'));
+        $question = $this->questionRepository->byId($id);
+        $question->update([
+            'title' => $request->get('title'),
+            'body'  => $request->get('body'),
+        ]);
+
+        $question->topics()->sync($topics);
+
+        return redirect()->route('question.show',[$question->id]);
+
     }
 
     /**
@@ -94,6 +120,14 @@ class QuestionsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $question = $this->questionRepository->byId($id);
+        if(Auth::user()->owns($question)){
+            $question->delete();
+            return redirect('/');
+        }
+        abort(403,'Forbidden');//return back();
     }
+
+    // 获取topic_id数组
+
 }
