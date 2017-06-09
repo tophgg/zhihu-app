@@ -27,7 +27,7 @@ class Question extends Model
     {
         return $this->hasMany(Answer::class);
     }
-    //问题属于多个
+    //问题属于多个用户，多对多关系的建立
     public function followers()
     {
         return $this->belongsToMany(User::class,'user_question')->withTimestamps();
