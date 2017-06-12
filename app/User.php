@@ -2,11 +2,10 @@
 
 namespace App;
 
-use Mail;
+use App\Mailer\UserMailer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Naux\Mail\SendCloudTemplate;
 
 class User extends Authenticatable
 {
@@ -32,15 +31,7 @@ class User extends Authenticatable
 
     public function sendPasswordResetNotification($token)
     {
-        $data = [
-            'url' => url('password/reset', $token)
-        ];
-        $template = new SendCloudTemplate('zhihu_app_password_reset', $data);
-
-        Mail::raw($template, function ($message){
-            $message->from('395886828@qq.com', 'Zhihu');
-            $message->to($this->email);
-        });
+        (new UserMailer())->passwordReset($this->email, $token);
     }
 
     public function owns(Model $model)
@@ -86,5 +77,22 @@ class User extends Authenticatable
     public function followedUser($user)
     {
         return $this->followers()->where('followed_id',$user)->count();
+    }
+
+    // 答案和用户之间的 1对多的关系
+    public function votes()
+    {
+        return $this->belongsToMany(Answer::class, 'votes')->withTimestamps();
+    }
+
+    // 点赞和取消点赞
+    public function voteFor($answer)
+    {
+        return $this->votes()->toggle($answer);
+    }
+
+    public function hasVoteFor($answer)
+    {
+        return !! $this->votes()->where('answer_id',$answer)->count();
     }
 }

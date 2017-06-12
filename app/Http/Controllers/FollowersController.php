@@ -31,12 +31,11 @@ class FollowersController extends Controller
         $userToFollow = $this->user->byId(request('user'));
         $followed = $user->followThisUser($userToFollow->id);
         if(count($followed['detached']) >0){
-            // 发私信
-            $userToFollow->notify(new NewUserFollowNotification());
             $userToFollow->decrement('followers_count');
             return response()->json(['followed' => false]);
         }
-
+        // 发私信
+        $userToFollow->notify(new NewUserFollowNotification());
         $userToFollow->increment('followers_count');
         return response()->json(['followed' => true]);
     }

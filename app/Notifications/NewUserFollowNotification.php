@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use App\Mailer\UserMailer;
+use App\Channel\SendCloudChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -30,12 +32,18 @@ class NewUserFollowNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database',SendCloudChannel::class];
     }
 
-    public function toDatabase($notifable)
+    public function toDatabase($notifiable)
     {
         return ['name' => Auth::guard('api')->user()->name];
+    }
+
+    public function toSendCloud($notifiable)
+    {
+        //$notifiable 包含了用户的信息
+        (new UserMailer())->followNotify($notifiable->email);
     }
     /**
      * Get the mail representation of the notification.
