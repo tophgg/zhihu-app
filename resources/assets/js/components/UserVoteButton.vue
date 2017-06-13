@@ -23,7 +23,7 @@
         },
         computed: {
             text() {
-                return this.count
+                return this.count;
             }
         },
         methods: {
@@ -32,9 +32,9 @@
                     console.log(response.data);
 
                     this.voted = response.data.voted;
-//                    this.count = response.data.voted ? this.count++ : this.count--;
+//                    this.myCount = response.data.voted ? this.count++ : this.count--;
                 })
             }
-        }
+        },
     }
 </script>

@@ -95,4 +95,10 @@ class User extends Authenticatable
     {
         return !! $this->votes()->where('answer_id',$answer)->count();
     }
+
+    // 私信和接收人的多对多关系
+    public function messages()
+    {
+        return $this->hasMany(Message::class,'to_user_id');
+    }
 }

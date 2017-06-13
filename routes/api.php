@@ -56,3 +56,5 @@ Route::post('/answer/{id}/votes/users','VotesController@users');
 
 
 Route::post('/answer/vote','VotesController@vote');
+
+Route::post('/message/store','MessagesController@store');

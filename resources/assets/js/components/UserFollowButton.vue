@@ -1,6 +1,6 @@
 <template xmlns:on="http://www.w3.org/1999/xhtml">
     <button
-            class="btn btn-default"
+            class="btn btn-default pull-left"
             v-text="text"
             v-bind:class="{'btn-success':followed}"
             v-on:click="follow"
