@@ -16,4 +16,10 @@ class Answer extends Model
     {
         return $this->belongsTo(Question::class);
     }
+
+    // 评论与答案多态关联
+    public function comments()
+    {
+    	return $this->morphMany('App\Comment','commentable');
+    }
 }
