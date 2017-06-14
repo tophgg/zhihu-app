@@ -20,11 +20,10 @@
                     </div>
 
                     <div class="modal-body">
-                        @foreach
                         <div v-if="comments.length > 0">
                             <div class="media" v-for="comment in comments">
                                 <div class="media-left">
-                                    <user-vote-button answer="{{$answer->id}}" count="{{$answer->votes_count}}"></user-vote-button>
+
                                     <a href="">
                                         <img style="width:36px;" :src="comment.user.avatar">
                                     </a>
@@ -35,7 +34,7 @@
                                         {{ comment.user.name }}
                                         
                                     </h4>
-                                    {{ comment.user.avatar }}
+                                    {{ comment.body }}
                                 </div>
                             </div>
                         </div> 
@@ -60,10 +59,18 @@
         data() {
             return {
                 body: '',
-                comments: []
+                comments: [],
+                newComment:{
+                    user:{
+                        name:Zhihu.name,
+                        avatar:Zhihu.avatar
+                    },
+                    body:''
+                }
             }
         },
         computed: {
+            // 动态生成 问题评论和用户评论
             dialog() {
                 return 'comments-dialog-' + this.type + '-' +this.model
             },
@@ -76,8 +83,12 @@
         },
         methods: {
             store(){
-                this.$http.post('/api/comment',{'type':this.type,'model':this.model,'body':this.body}).then(response =>{
-                    
+                    this.$http.post('/api/comment',{'type':this.type,'model':this.model,'body':this.body}).then(response =>{
+                    console.log(response.data)
+                    this.newComment.body = response.data.body
+                    this.comments.push(this.newComment)
+                    this.body = ''
+                    this.count ++
                 })
             },
             showCommentsForm() {
@@ -85,9 +96,10 @@
                 $(this.dialogId).modal('show');
             },
             getComments() {
-                this.$http.get('/api/' + this.type + '/' + this.model + '/comments').then(
-
-                )
+                this.$http.get('/api/' + this.type + '/' + this.model + '/comments').then(response =>{
+                    console.log(response.data)
+                    this.comments = response.data
+                })
             }
         }
     }

@@ -2,25 +2,52 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Repositories\CommentRepository;
+use App\Repositories\AnswerRepository;
+use App\Repositories\QuestionRepository;
+use Auth;
 use Illuminate\Http\Request;
 
 class CommentsController extends Controller
 {
-    public function answer()
+    protected $comment;
+    protected $answer;
+    protected $question;
+
+    public function __construct(CommentRepository $comment, AnswerRepository $answer, QuestionRepository $question)
+    {
+        $this->comment = $comment;
+        $this->answer = $answer;
+        $this->question = $question;
+    }
+    public function answer($id)
     {
     	// comments model中的user一对一关系
-    	$comments = Answer::with('comments','comments.user')->where('commentable_id',$id)->first();
-    	return $comments;
+    	return $this->answer->getAnswerCommentsById($id);
+
     }
 
-    public function question()
+    public function question($id)
     {
-    	$answers = Question::with('comments','comments.user')->where('commentable_id',$id)->first();
-    	return $comments;
+    	return $this->question->getQuestionCommentsById($id);
     }
 
     public function store()
     {
     	$model = $this->getModelNameFromType(request('type'));
+    	$comment = $this->comment->create([
+    	    'commentable_id' => request('model'),
+            'commentable_type' => $model,
+            'user_id'   => Auth::guard('api')->user()->id,
+            'body'  => request('body')
+        ]);
+
+    	return $comment;
+    }
+
+    public function getModelNameFromType($type)
+    {
+        return $type === 'question' ? 'App\question' : 'App\answer';
     }
 }
