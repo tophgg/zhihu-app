@@ -17,9 +17,10 @@ class MessagesController extends Controller
     {
         $user = request('user');
         $message = $this->messageRepository->create([
-            'from_user_id' => Auth::guard('api')->user()->id,
+            'from_user_id' => user('api')->id,
             'to_user_id'  => request('user'),
-            'body'        => request('body')
+            'body'        => request('body'),
+            'dialog_id'        => time().Auth::id(),
         ]);
         if($message){
             return response()->json(['status' => true]);

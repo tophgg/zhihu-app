@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 use App\Repositories\CommentRepository;
 use App\Repositories\AnswerRepository;
 use App\Repositories\QuestionRepository;
-use Auth;
 use Illuminate\Http\Request;
 
 class CommentsController extends Controller
@@ -39,7 +38,7 @@ class CommentsController extends Controller
     	$comment = $this->comment->create([
     	    'commentable_id' => request('model'),
             'commentable_type' => $model,
-            'user_id'   => Auth::guard('api')->user()->id,
+            'user_id'   => user('api')->id,
             'body'  => request('body')
         ]);
 

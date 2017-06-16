@@ -84,7 +84,7 @@ class QuestionsController extends Controller
     public function edit($id)
     {
         $question = $this->questionRepository->byId($id);
-        if(Auth::user()->owns($question)){
+        if(user()->owns($question)){
             return view('questions.edit',compact('question'));
         }
         return back();
@@ -121,7 +121,7 @@ class QuestionsController extends Controller
     public function destroy($id)
     {
         $question = $this->questionRepository->byId($id);
-        if(Auth::user()->owns($question)){
+        if(user()->owns($question)){
             $question->delete();
             return redirect('/');
         }

@@ -33,3 +33,8 @@ Route::post('questions/{question}/answer','AnswersController@store');
 Route::get('questions/{question}/follow','QuestionFollowController@follow');
 
 Route::get('/notification','NotificationsController@index');
+Route::get('/notification/{notification}','NotificationsController@show');
+
+Route::get('/inbox','InboxController@index');
+Route::get('/inbox/{dialogId}','InboxController@show');
+Route::post('/inbox/{dialogId}/store','InboxController@store');

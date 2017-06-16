@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
 use Illuminate\Http\Request;
 use App\Repositories\AnswerRepository;
 
@@ -16,9 +15,7 @@ class VotesController extends Controller
     }
     public function users($answer)
     {
-        $user = Auth()->guard('api')->user();
-
-        if($user->hasVoteFor($answer)){
+        if(user('api')->hasVoteFor($answer)){
             return response()->json(['voted' => true]);
         }
         return response()->json(['voted' => false]);
@@ -26,9 +23,8 @@ class VotesController extends Controller
 
     public function vote()
     {
-        $user = Auth()->guard('api')->user();
         $answer = $this->answer->byId(request('answer'));
-        $voted = $user->voteFor($answer->id);
+        $voted = user('api')->voteFor($answer->id);
         if(count($voted['detached']) >0){
             $answer->decrement('votes_count');
             return response()->json(['voted' => false]);
